@@ -28,3 +28,7 @@ src/lib/dist
 .vscode/settings.json
 src/lib/pbConfig.json
 /Delete Users
+/getolddata
+*.json
+.firebase/hosting.YnVpbGQ.cache
+.firebase/hosting.YnVpbGQ.cache

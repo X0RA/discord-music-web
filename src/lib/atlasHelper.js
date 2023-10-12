@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import * as Realm from "realm-web";
+import { fetchOldSongs } from "./firebaseHelper";
 
 // Using this so we don't fill up on anon users
 const userDetails = {
@@ -70,6 +71,11 @@ export const SongsProvider = ({ children }) => {
     const songsCollection = atlas.db("xpostersfm").collection("songs");
     const records = await songsCollection.find();
     setSongs(records);
+    fetchOldSongs().then((old_songs) => {
+      if (old_songs) {
+        setSongs([...records, ...old_songs]);
+      }
+    });
   };
 
   const fetchXposters = async () => {
