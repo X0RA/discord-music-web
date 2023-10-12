@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useSongs } from "../lib/atlasHelper";
 
+//TODO Actually display the song name in the songs
+
+//TODO Users not actually updating when new songs are added
+
+
 function Artists() {
   const { songs, xposters } = useSongs();
   const [usersWithSongs, setUsersWithSongs] = useState([]);

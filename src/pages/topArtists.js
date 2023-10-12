@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useSongs } from "../lib/atlasHelper";
 import albumArt from "album-art";
 
+// TODO: top three users instead of one
+
+
 function TopArtists() {
   const { songs, xposters } = useSongs();
   const [topArtists, setTopArtists] = useState([]);

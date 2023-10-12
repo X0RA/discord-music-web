@@ -32,3 +32,4 @@ src/lib/pbConfig.json
 *.json
 .firebase/hosting.YnVpbGQ.cache
 .firebase/hosting.YnVpbGQ.cache
+*.cache
