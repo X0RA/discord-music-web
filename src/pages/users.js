@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSongs } from "../lib/atlasHelper";
 
-//TODO Actually display the song name in the songs
-
-//TODO Users not actually updating when new songs are added
 
 
 function Artists() {
@@ -30,7 +27,16 @@ function Artists() {
 
       switch (selectedMetrics) {
         case "songs":
-          topSongs = userSongs; // Directly assign if you need some other logic implement here
+          const songCounts = userSongs.reduce((acc, song) => {
+            const key = `${song.artist} - ${song.title}`;
+            acc[key] = (acc[key] || 0) + 1;
+            return acc;
+          }, {});
+
+          topSongs = Object.keys(songCounts)
+            .map((key) => ({ song: key, count: songCounts[key] }))
+            .sort((a, b) => b.count - a.count);
+
           setSelectedUserSongs(topSongs);
           break;
 
@@ -108,12 +114,11 @@ function Artists() {
         {/* users songs */}
         <div className="mt-5">
           {selectedMetrics === "songs" &&
-            selectedUserSongs.map((song, i) => (
+            selectedUserSongs.map((item, i) => (
               <div key={i} className="flex flex-row">
                 <h1>
-                  {song.artist} - {song.title}
-                </h1>{" "}
-                {/* Adjusted to show song title along with artist */}
+                  {item.song} ({item.count})
+                </h1>
               </div>
             ))}
 

@@ -9,6 +9,8 @@ function TopArtists() {
   const { songs, xposters } = useSongs();
   const [topArtists, setTopArtists] = useState([]);
   const [topArtistCovers, setTopArtistCovers] = useState([]);
+  const [topCount, setTopCount] = useState(12);
+  const [isSliderVisible, setIsSliderVisible] = useState(false);
 
   useEffect(() => {
     let artistsCount = {};
@@ -39,22 +41,26 @@ function TopArtists() {
           (a, b) => artistsCount[artist].albums[b] - artistsCount[artist].albums[a]
         )[0];
 
-        const topUser = Object.keys(artistsCount[artist].users).sort(
-          (a, b) => artistsCount[artist].users[b] - artistsCount[artist].users[a]
-        )[0];
+        const sortedUsers = Object.keys(artistsCount[artist].users)
+          .map((userID) => ({
+            userID,
+            count: artistsCount[artist].users[userID],
+          }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 3); // This will give you the top 3 users
 
         return {
           name: artist,
           count: artistsCount[artist].count,
           topAlbum,
-          topUser,
+          topUsers: sortedUsers,
         };
       })
       .sort((a, b) => b.count - a.count)
-      .slice(0, 12); // This will limit the results to the top 10 artists
+      .slice(0, topCount);
 
     setTopArtists(sortedArtists);
-  }, [songs]);
+  }, [songs, topCount]);
 
   useEffect(() => {
     if (topArtists.length > 0) {
@@ -94,7 +100,30 @@ function TopArtists() {
   return (
     <div className="flex justify-center min-h-max mt-10">
       <div className="max-w-screen-xl min-h-max w-3/4 rounded-3xl content">
-        <h1 className="text-center text-2xl mb-10 mt-10">Top 12 Artists in the Xposters</h1>
+        {/* top artists slider  */}
+        <h1 className="text-center text-2xl mb-10 mt-10">
+          Top{" "}
+          <span
+            className="cursor-pointer text-slate-500 hover:underline"
+            onClick={() => setIsSliderVisible(!isSliderVisible)}>
+            {topCount}
+          </span>{" "}
+          Artists in the Xposters
+        </h1>
+        {isSliderVisible && (
+          <div className="flex justify-center my-5">
+            <input
+              type="range"
+              min="1"
+              max="50"
+              step="1"
+              value={topCount}
+              onChange={(e) => setTopCount(e.target.value)}
+              className="slider w-3/4"
+            />
+          </div>
+        )}
+        {/* main display */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {topArtists.map((artist, i) => {
             const albumCover = Array.isArray(topArtistCovers)
@@ -110,7 +139,17 @@ function TopArtists() {
                     className="object-cover w-full h-full rounded-md"
                   />
                 </div>
-                <p>{topXposter ? topXposter.username : "User not found"}</p>
+                {/* <p>{topXposter ? topXposter.username : "User not found"}</p> */}
+                <div>
+                  {artist.topUsers.map((user, index) => {
+                    const topXposter = xposters.find((xposter) => xposter.discordID === user.userID);
+                    return (
+                      <p key={index}>
+                        {topXposter ? topXposter.username : "User not found"}: {user.count} listens
+                      </p>
+                    );
+                  })}
+                </div>
                 <h1 className="mt-4 text-2xl font-medium">{artist.name}</h1>
                 <h3 className="">{artist.count} listens</h3>
               </div>
