@@ -3,10 +3,12 @@ import TopArtists from "./pages/topArtists";
 import TopSongs from "./pages/topSongs";
 import { useEffect } from "react";
 import Users from "./pages/users";
+import TopGames from "./pages/games";
 
 const pages = [
   { name: "Top Artists", path: "/" },
   { name: "Top Songs", path: "/songs" },
+  { name: "Top Games", path: "/games" },
   { name: "Users", path: "/users" },
 ];
 
@@ -25,6 +27,7 @@ function App() {
       <Route exact path="/" element={<TopArtists />} />
       <Route exact path="/songs" element={<TopSongs />} />
       <Route exact path="/users" element={<Users />} />
+      <Route exact path="/games" element={<TopGames />} />
     </Routes>
   );
 }

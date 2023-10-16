@@ -48,6 +48,7 @@ export const SongsContext = createContext();
 export const SongsProvider = ({ children }) => {
   const [songs, setSongs] = useState([]);
   const [xposters, setXposters] = useState([]);
+  const [games, setGames] = useState([]);
   const app = new Realm.App({ id: "xpostersfm-qfeqw" });
   const credentials = Realm.Credentials.emailPassword(userDetails.username, userDetails.password);
 
@@ -78,6 +79,38 @@ export const SongsProvider = ({ children }) => {
     });
   };
 
+  const fetchGames = async () => {
+    const user = await logIn();
+    if (!user) {
+      console.error("User not authenticated");
+      return;
+    }
+    const atlas = await user.mongoClient("mongodb-atlas");
+    const gamesCollection = atlas.db("xpostersfm").collection("games");
+    const records = await gamesCollection.find();
+    setGames(records);
+  };
+
+  const getSteamID = async (gameName) => {
+    const user = await logIn();
+    if (!user) {
+      console.error("User not authenticated");
+      return;
+    }
+    const atlas = await user.mongoClient("mongodb-atlas");
+    const gamesCollection = atlas.db("xpostersfm").collection("steam_game_ids");
+
+    // Use a regular expression for a case-insensitive search
+    const regex = new RegExp(`^${gameName}$`, "i");
+    const records = await gamesCollection.findOne({ name: regex });
+    if (!records) {
+      console.error("No match found");
+      return;
+    }
+
+    return records.appid;
+  };
+
   const fetchXposters = async () => {
     const user = await logIn();
     if (!user) {
@@ -93,10 +126,13 @@ export const SongsProvider = ({ children }) => {
   useEffect(() => {
     fetchSongs();
     fetchXposters();
+    fetchGames();
   }, []);
 
   return (
-    <SongsContext.Provider value={{ songs, fetchSongs, xposters, fetchXposters }}>{children}</SongsContext.Provider>
+    <SongsContext.Provider value={{ songs, fetchSongs, xposters, fetchXposters, games, fetchGames, getSteamID }}>
+      {children}
+    </SongsContext.Provider>
   );
 };
 

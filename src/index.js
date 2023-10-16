@@ -6,6 +6,7 @@ import { HashRouter } from 'react-router-dom';
 import Header from './components/header';
 import { SongsProvider } from "./lib/atlasHelper";
 
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 function isMobileDevice() {
