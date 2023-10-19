@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSongs } from "../lib/atlasHelper";
 
 const TopGames = () => {
-  const { games, fetchGames, getSteamID } = useSongs();
+  const { games, fetchGames, getSteamID, xposters } = useSongs();
   const [topGames, setTopGames] = useState([]);
 
   useEffect(() => {
@@ -10,21 +10,39 @@ const TopGames = () => {
       let gamesCount = {};
       games.forEach((game) => {
         if (gamesCount[game.game]) {
-          gamesCount[game.game].playTime += game.duration;
-          gamesCount[game.game].users.add(game.discordID);
+          gamesCount[game.game].totalTime += game.duration;
+          const foundUser = gamesCount[game.game].users.find((user) => user.name === game.discordID);
+
+          if (foundUser) {
+            foundUser.playtime += game.duration;
+          } else {
+            gamesCount[game.game].users.push({
+              discordName: xposters.find((xposter) => xposter.discordID === game.discordID).username,
+              name: game.discordID,
+              playtime: game.duration,
+            });
+          }
         } else {
           gamesCount[game.game] = {
-            playTime: game.duration,
-            users: new Set([game.discordID]),
+            totalTime: game.duration,
+            users: [
+              {
+                name: game.discordID,
+                discordName: xposters.find((xposter) => xposter.discordID === game.discordID).username,
+                playtime: game.duration,
+              },
+            ],
           };
         }
       });
 
+      console.log(gamesCount);
+
       const sortedGamesPromises = Object.keys(gamesCount).map(async (game) => ({
         name: game,
         steamID: await getSteamID(game),
-        playTime: gamesCount[game].playTime,
-        userCount: gamesCount[game].users.size,
+        playTime: gamesCount[game].totalTime, // corrected to totalTime
+        users: gamesCount[game].users, // added this to include the users and their playtimes
       }));
 
       const sortedGames = await Promise.all(sortedGamesPromises);
@@ -51,7 +69,11 @@ const TopGames = () => {
             />
             <h1 className="mt-4 text-2xl font-medium">{game.name}</h1>
             <h3 className="">{formatPlayTime(game.playTime)} played</h3>
-            <h3 className="">{game.userCount} players</h3>
+            {game.users.map((user, i) => (
+              <p key={i} className="text-sm">
+                {user.discordName} - {formatPlayTime(user.playtime)}
+              </p>
+            ))}
           </div>
         ))}
       </div>
